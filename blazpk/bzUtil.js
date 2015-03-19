@@ -4,7 +4,7 @@
  *
  * log.setLogParam({name:"log.txt", tofile:true, console:true});
  * log.info(), log.err()
- *
+ * 只能有1个记录。
  */
 
 var fs = require('fs');

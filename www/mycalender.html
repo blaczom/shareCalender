@@ -49,6 +49,8 @@
           event.backgroundColor = "lightblue";
           event.description = 'This is a cool event';
           $('#calendar').fullCalendar('updateEvent', event);  // 更新对象
+          console.log(event);
+          window.getYou = event;
         },
 
         eventDrop: function(event, delta, revertFunc) {
@@ -142,5 +144,9 @@
 
 <div id='calendar'></div>
 
+<p>
+  <br/>
+  <input type="button" value="检查目前未完事项：">
+</p>
 </body>
 </html>

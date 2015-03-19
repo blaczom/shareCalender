@@ -8,11 +8,11 @@
  */
 
 var sqlite3 = require('sqlite3');
-var util = require('./blazpk/util.js');
 var fs = require('fs');
 var Q = require('q');
-var gdbFile = 'blaccms.db'; // if exist exman.db, means the sql ddl have been execute.
+var gdbFile = 'blaz.db'; // if exist blaz.db, means the sql ddl have been execute.
 
+var util = require('./bzUtil.js');
 var logInfo = util.info;
 var logErr = util.err;
 
@@ -155,7 +155,12 @@ exports.gdb = gdb;
 exports.createDB = createDB;
 
 /*
+  所有数据对象必须有uuid作为主键。
+*/
+
+
+/*
 test:
- sqlite = require('./blazpk/exSqlite.js');
+ sqlite = require('./blazpk/bzSqlite.js');
  sqlite.getPromise('select * from user').then(function(data){console.log(data)});
  */
