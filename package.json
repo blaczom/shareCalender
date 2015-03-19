@@ -1,0 +1,23 @@
+{
+  "name": "shareCalender",
+  "version": "0.0.1",
+  "description": "www server",
+  "main": "index.js",
+  "dependencies":{
+    "express":"4.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blaczom/shareCalender.git"
+  },
+  "keywords": [
+    "www",
+    "http"
+  ],
+  "author": "blaczom",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blaczom/shareCalender/issues"
+  },
+  "homepage": "https://github.com/blaczom/shareCalender"
+}
