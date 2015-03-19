@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="cn">
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+  <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+
+<div class="container-fluid" >
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3 " >
+        <form class="form-horizontal bz-center-me" role="form">
+          <h4 class="page-header">更改密码：</h4>
+          <div class="form-group">
+            <label for="inputTitle" class="col-sm-4 control-label">旧密码：</label>
+            <div class="col-sm-8">
+              <input ng-model="oldword" type="password" class="form-control" id="oldword" placeholder="旧密码：">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="inputTitle" class="col-sm-4 control-label">新密码：</label>
+            <div class="col-sm-8">
+              <input ng-model="newword" type="password" class="form-control" id="newword" placeholder="新密码：">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="inputTitle" class="col-sm-4 control-label">确认密码：</label>
+            <div class="col-sm-8">
+              <input ng-model="confirmword" type="password" class="form-control" id="confirmword" placeholder="确认密码：">
+            </div>
+          </div>
+          <p> &nbsp;
+            <span class="label label-danger bz-hide-me" >  两次密码不一致。  </span>
+          </p>
+        <button type="button" ng-click="saveWord()" class="btn btn-primary">保存</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+</body>
+
+</html>

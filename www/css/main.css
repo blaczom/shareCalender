@@ -1,0 +1,9 @@
+.bz-center-me {
+    margin-left:auto;
+    margin-right:auto;
+    text-align: center;
+}
+
+.bz-hide-me {
+    visibility: hidden;
+}
