@@ -6,7 +6,7 @@ var express = require('express');
 var path = require('path');
 var app = express();
 app.set('port', 80);
-
+var os = require('os');
 var ls_www = process.cwd() + (os.platform() == "win32" ? '\\www' : '/www');
 
 app.use(express.static(ls_www));

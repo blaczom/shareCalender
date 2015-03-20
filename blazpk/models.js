@@ -19,27 +19,27 @@ var objUser = function() {
 };
 
 objUser.prototype.new = function(){  return( new objUser() ); };
-objUser.prototype.save = gdbAccess.helpUser.save;
-objUser.prototype.delete = gdbAccess.helpUser.delete;
-objUser.prototype.getByName = gdbAccess.helpUser.getByName;
+objUser.prototype.save = gdbAccess.acUser.save;
+objUser.prototype.delete = gdbAccess.acUser.delete;
+objUser.prototype.getByName = gdbAccess.acUser.getByUUID;
 
-var objArticle = function() {
+var objEvent = function() {
   this.uuid = '';
   this.id = '';
   this.title = '';
   this.allDay = '';
   this.start = '';  //  "2014-05-01T12:00:00"  var local = $.fullCalendar.moment('2014-05-01T12:00:00');
   this.end = '';
-  this.url = '';
   this.editable = '';
   this.finished = '';
-  this.owner = "";
+  this.public = '';
+  this.owner = '';
   this._exState = 'new';
 };
-objArticle.prototype.new = function(){  return(new objArticle()); };
-objArticle.prototype.save = gdbAccess.helpArticle.save;
-objArticle.prototype.delete = gdbAccess.helpArticle.delete;
-objArticle.prototype.getByID = gdbAccess.helpArticle.getByID;
+objEvent.prototype.new = function(){  return(new objEvent()); };
+objEvent.prototype.save = gdbAccess.acEvent.save;
+objEvent.prototype.delete = gdbAccess.acEvent.delete;
+objEvent.prototype.getByID = gdbAccess.acEvent.getByUUID;
 
 
 

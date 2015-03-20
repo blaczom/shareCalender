@@ -16,14 +16,14 @@ var acUser = {
   }
 };
 
-var acArticle = {
+var acEvent = {
   save : function (aArticle, aCallback) {  bzDb.comSave(aArticle, 'ARTICLE', aCallback); },
   getByUUID : function (aID, aCallback) { bzDb.gdb.get("select * from ARTICLE where UUID=?", aID, aCallback); },
   delete : function(aID, aCallback){ bzDb.runSql("delete from ARTICLE where UUID = ?", aID, aCallback); }
 };
 
 exports.acUser = acUser;
-exports.acArticle = acArticle;
+exports.acEvent = acEvent;
 exports.runSql = bzDb.runSql;
 exports.getPromise = bzDb.getPromise;
 exports.runSqlPromise = bzDb.runSqlPromise;
