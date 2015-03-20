@@ -10,9 +10,9 @@ var bzDb = require('./bzSqlite.js');
 var acUser = {
   save:function (aUser, aCallback){ bzDb.comSave(aUser, 'USER', aCallback); },
   delete : function(aUUID, aCallback){
-    bzDb.runSql("delete from USER where UUID = ?", aUUID, aCallback); } ,
+    bzDb.runSql("delete from USER where uuid = ?", aUUID, aCallback); } ,
   getByUUID:function(aUUID, aCallback) {
-    bzDb.gdb.get("select * from user where UUID = ?" , aUUID, aCallback);
+    bzDb.gdb.get("select * from user where uuid = ?" , aUUID, aCallback);
   }
 };
 

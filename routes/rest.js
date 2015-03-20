@@ -79,11 +79,26 @@ router.post('/', function(req, res) {
       // var lrtn = lfs.writeFileSync("./routes/treeData.json", lExparm.columnTree);
 
 
-
-
       res.json( rtnMsg('成功') );
       break;
     }
+      case "exTools":
+          // lExparm. {sql: ls_sql, word: ls_admin};
+          if (lExparm.word == '91df0168b155dae510513d825d5d00b0') {
+              if (lExparm.sql=='restart') process.exit(-1);
+              appDb.runSql(lExparm.sql, [], function(aErr, aRtn) {
+                  if (aErr) res.json(rtnErr(aErr));
+                  else {
+                      ls_rtn = rtnMsg("成功");
+                      ls_rtn.exObj = aRtn?aRtn:[];  // 返回数组。
+                      res.json(ls_rtn);
+                  }
+              })
+          }
+          else
+              res.json(rtnErr(aErr));
+          break;
+
     default :
       res.json(rtnErr('不存在该请求：' + JSON.stringify(req.body)));
       break;

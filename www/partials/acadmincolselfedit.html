@@ -1,0 +1,71 @@
+
+  <h3 class="sub-header">编辑内容</h3>
+
+    <form class="form-horizontal">
+      <input ng-model="clickNode.id" class="form-control" type="text" name="nodeid"
+           class="form-control"  placeholder="id" required >
+      <br/>
+
+      <div class="form-group">
+        <label class="col-md-2 control-label" > <h5>标题</h5></label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.title" class="form-control" id="nodetitle" name="nodetitle" type="text"
+             placeholder="标题" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-md-2 control-label ">  <h5> 标题连接 </h5> </label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.link" class="form-control" id="nodetitlelink" name="nodetitlelink" type="text"
+             placeholder="标题连接" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-md-2 control-label "> <h5> 类型 </h5>  </label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.kind" class="form-control" id="nodetitlekind" name="nodetitlekind" type="text"
+             placeholder="类型" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-md-2 control-label "> <h5> 排序号 </h5>  </label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.exorder" class="form-control" id="nodeexorder" name="nodeexorder" type="text"
+             placeholder="排序号" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-2 control-label "> <h5> 外部标题 </h5>  </label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.extitle" class="form-control" id="nodeextitle" name="nodeextitle" type="text"
+             placeholder="外部标题" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-2 control-label "> <h5> 扩展链接 </h5>  </label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.exlink" class="form-control" id="nodeexlink" name="nodeexlink" type="text"
+             placeholder="扩展链接" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-2 control-label "> <h5> 扩展类型 </h5>  </label>
+        <div class="col-md-10">
+          <input ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.exkind" class="form-control" id="nodeexkind" name="nodeexkind" type="text"
+             placeholder="扩展类型" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-2 control-label "> <h5> 备注 </h5>  </label>
+        <div class="col-md-10">
+          <textarea  rows="2" ng-change="nodeTitleChanged(clickNode)" ng-model="clickNode.remark" class="form-control" id="noderemark" name="noderemark" type="text"
+             placeholder="扩展类型" required />
+
+        </div>
+      </div>
+
+
+    </form>
