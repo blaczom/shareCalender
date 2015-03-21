@@ -3,10 +3,9 @@
 <head>
     <meta charset="utf-8">
     <title>团队日历</title>
-    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
-
-    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
-    <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./lib/bootstrap.css">
+    <script src="./lib/jquery11.js"></script>
+    <script src="./lib/bootstrap.js"></script>
     <link href='./lib/fullcalendar.min.css' rel='stylesheet' />
     <script src='./lib/moment.min.js'></script>
     <script src='./lib/fullcalendar.min.js'></script>
@@ -25,8 +24,8 @@
 <nav class="navbar" style="margin-bottom:0px;" role="navigation">
     <div class="container-fluid" style="background: #00aff0" ng-controller="ctrlAdminTop">
         <div class="navbar-header">
-            <a class="navbar-brand" style="color:white " ui-sref="acadmin.word">
-               <span ng-show={{loginedUser}}> 登录人： {{loginedUser}} </span>
+            <a class="navbar-brand" style="color:white " ui-sref="word">
+               <span ng-show="loginedUser"> 用户： {{loginedUser}} </span>
             </a>
         </div>
         <p class="nav navbar-nav navbar-right" style="line-height:50px; margin-right:0px">
@@ -39,12 +38,14 @@
 <div ui-view></div>
 
 <div class="container-fluid">
-    <div class="row">
+    <div class="row" style="background: #00aff0">
+      <br/>
         <footer class="footer-main" >
             <div class="col-xs-4 col-xs-offset-4" style="text-align: center;">
                 <span class = "footItem"> -- xxx@xxx.com -- </span>
             </div>
         </footer>
+      <br/> &nbsp;
     </div> <!-- row -->
 </div>
 

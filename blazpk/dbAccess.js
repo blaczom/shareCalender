@@ -19,7 +19,8 @@ var acUser = {
 var acEvent = {
   save : function (aArticle, aCallback) {  bzDb.comSave(aArticle, 'ARTICLE', aCallback); },
   getByUUID : function (aID, aCallback) { bzDb.gdb.get("select * from ARTICLE where UUID=?", aID, aCallback); },
-  delete : function(aID, aCallback){ bzDb.runSql("delete from ARTICLE where UUID = ?", aID, aCallback); }
+  delete : function(aID, aCallback){ bzDb.runSql("delete from ARTICLE where UUID = ?", aID, aCallback); },
+  getByDate: function (aDate, aCallback) { bzDb.gdb.get("select * from ARTICLE where UUID=?", aID, aCallback); }
 };
 
 exports.acUser = acUser;
@@ -39,6 +40,6 @@ exports.createDB = bzDb.createDB;
  测试：
  创建数据库：
  dbAccess = require('./blazpk/dbAccess.js');
-
- dbAccess.acUser.getByUUID('uuid', function(err, data){ console.log( err, data ) } );
+ dbAccess.acUser.getByUUID('admin', function(err, data){ console.log( err, data ) } );
+ dbAccess.runSql("update user set word='4f9268d766cb3dcf4cbc912b39f6e06c' where uuid='admin' ")
  */

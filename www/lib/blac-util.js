@@ -170,34 +170,18 @@ angular.module('blac-util', ['angular-md5'])
     var gEvent = { login:'event:login', broadcast:'event:broadcast' }
     var httpQ = function(aUrl, aObject){
       var deferred = $q.defer();
-      /* $http.post(aUrl, aObject )
+      $rootScope.$broadcast(gEvent.broadcast, "访问服务器...");
+      $http.post(aUrl, aObject )
         .success(function (data, status, headers, config) {
+          var lrtn = "ok";
+          if (data.hasOwnProperty('rtnInfo')) lrtn = data.rtnInfo;
+          $rootScope.$broadcast(gEvent.broadcast, "访问服务器..." + lrtn);
           deferred.resolve(data || []);
         })
         .error(function (data, status, headers, config) {
+          $rootScope.$broadcast(gEvent.broadcast, "访问服务器错误：" + msg);
           deferred.reject(status);
         });
-      */
-      $rootScope.$broadcast(gEvent.broadcast, "访问服务器...");
-      $.ajax({
-        async: false,
-        crossDomain: false, // obviates need for sameOrigin test
-        type: 'POST',
-        dataType: 'json',
-        url: aUrl,
-        data: {jpargs: JSON.stringify(aObject)},
-        success: function (returnData, returnMsg, ajaxObj, msgShow) {
-          deferred.resolve(returnData || []);
-          var lrtn = "ok";
-          if (returnData.hasOwnProperty('rtnInfo')) lrtn = returnData.rtnInfo;
-            $rootScope.$broadcast(gEvent.broadcast, "访问服务器..." + lrtn);
-        },
-          error: function (xhr, msg, e) {
-            deferred.reject(msg);
-            $rootScope.$broadcast(gEvent.broadcast, "访问服务器错误：" + msg);
-        }
-      });
-
       return deferred.promise;
     };
     var userLoginQ = function(aObjUser) {

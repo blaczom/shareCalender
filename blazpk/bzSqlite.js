@@ -10,44 +10,45 @@
 var sqlite3 = require('sqlite3');
 var fs = require('fs');
 var Q = require('q');
-var gdbFile = 'blaz.db'; // if exist blaz.db, means the sql ddl have been execute.
 
 var util = require('./bzUtil.js');
 var logInfo = util.info;
 var logErr = util.err;
 
+var gdbFile = 'blaz.db'; // if exist blaz.db, means the sql ddl have been execute.
+
 var createDB = function(adbFile){
   if (!adbFile) adbFile = gdbFile;
-  if (!fs.existsSync(adbFile)){
-    logInfo("---no databse file. will create it:---", gdbFile);
-    var ldb = new sqlite3.Database(adbFile);
-    var l_run = require('./blazpk/createSqlite.json').sqlCreate;
-    ldb.serialize( function() {
-      for (var i in l_run) {
-        ldb.run(l_run[i], function (err, row) {
-          if (err) logErr(" 初始化创建数据库错误: ",err.message,l_run[i]);
-        });
-      }
-    });
-    ldb.close();
-  }
-  else console.log(gdbFile, '已经存在。没有操作。');
+  logInfo("---no databse file. will create it:---", gdbFile);
+  var ldb = new sqlite3.Database(adbFile);
+  var l_run = require('./createSqlite.json').sqlCreate;
+  ldb.serialize( function() {
+    for (var i in l_run) {
+      ldb.run(l_run[i], function (err, row) {
+        if (err) logErr(" 初始化创建数据库错误: ",err.message,l_run[i]);
+      });
+    }
+  });
+  ldb.close();
 };
 
-var gdb = new sqlite3.Database(gdbFile);
+if (!fs.existsSync(gdbFile)) createDB();
 
+var gdb = new sqlite3.Database(gdbFile);
 
 var genSave = function (aObj, aTable) {
 //  _exState用来指示处理。  根据json对象 和 对应的表名（安全起见不能保存在json中），返回sql和执行参数。
 
-  if (!aObj._exState) {
+  if (!aObj.hasOwnProperty('_exState')) {
     logInfo("dbsqlite3 genSave get a wrong db object." + aObj);
-    return [null, null];
+    return ["", null];
   }
+  var l_genCol = aObj;
+  if (aObj._exState == 'dirty' &&  aObj.hasOwnProperty('_exUpdate')) l_genCol = aObj._exUpdate ;  // 如果指定了更新列，就只更新这个列。
 
   var l_cols = [], l_vals = [], l_quest4vals=[],  l_pristine = [];
   // 列名， 列值(带引号)， 参数？， 原始值
-  for (var i in aObj) {    // 列名， i， 值 aObj[i]. 全部转化为string。
+  for (var i in l_genCol) {    // 列名， i， 值 aObj[i]. 全部转化为string。
     var l_first = i[0];
     if (l_first != '_' && l_first!='$' ) { // 第一个字母
       var lsTmp = (aObj[i]==null) ? "" : aObj[i];   // 内容如果为空，就转化成字符串空。
@@ -86,7 +87,7 @@ var genSave = function (aObj, aTable) {
       break;
     default : // do nothing.
       ls_sql = "";
-      logErr('i dont know why you call me with this ---exState' , aObj);
+      logErr('i dont know why you call me with this clean data---exState' , aObj);
   }
   return [ls_sql, l_pristine];   // 返回一个数组。前面是语句，后面是参数。f
 };
@@ -134,14 +135,14 @@ var getPromise = function (aSql, aParam) {
 var comSave = function(aTarget, aTable, aCallback) {
   try {
     l_gen = genSave(aTarget, aTable);  // 返回一个数组，sql和后续参数。
-    logInfo("com save run here with param: ", aTarget, aTable, l_gen);
+    logInfo("genSave ok, com save will runsql with param: ", aTarget, aTable, l_gen);
     gdb.run(l_gen[0], l_gen[1], function (err, row) {
       row = this.changes;  // 影响的行。
       aCallback(err, row);
     });
   }
   catch (err) {
-    logErr('comSave catch a error: ',err);
+    logErr('comSave catch a error here ', err);
     if (aCallback) aCallback(err, err);
   }
 };
@@ -153,6 +154,7 @@ exports.runSqlPromise = runSqlPromise;
 exports.genSave = genSave;
 exports.gdb = gdb;
 exports.createDB = createDB;
+exports.comSave = comSave;
 
 /*
   所有数据对象必须有uuid作为主键。

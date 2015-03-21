@@ -8,7 +8,7 @@
 
 var express = require('express'),
   router = express.Router(),
-  appDb =  require('../blac-bk-access'),
+  models =  require('../blazpk/models'),
   Q = require('q');
 
 var rtnErr = function(aMsg, aErr) {
@@ -25,14 +25,21 @@ router.get('/', function(req, res) {
   res.send('没有此功能。');
 });
 
-function checkLogin(req, res){ return(req.session.loginUser);};  // 只信任服务器端的数据。
+function checkLogin(req, res){ return(req.session.loginUser); };  // 只信任服务器端的数据。
 
 router.post('/', function(req, res) {
-  /* 除了userLogin, userReg, 以外，其余的功能都需要 ---登录检查，  */
+
+  // 定义一个通用的返回函数。
+  function comCallBackFunc(aErr, aRtn) {
+    if (aErr) res.json( rtnErr(aErr) ); else  res.json( rtnMsg(aRtn.rtnInfo) );
+  }
+
+  // 得到一个通用的入口结构。
   logInfo("get client rest: " , req.body);
   var lFunc = req.body['func']; // 功能名称： 'userlogin' 等等
   var lExparm = req.body['ex_parm'];  // 参数对象: {}
 
+  /* 除了userLogin, userReg, 以外，其余的功能都需要 ---登录检查，  */
   if ("userlogin,userReg,exTools,,,".indexOf(lFunc+",") < 0) {   // 需要登录的对象。
     if (!checkLogin(req,res)) {
       var l_rtn = rtnErr('未登录，请先登录。');
@@ -43,34 +50,45 @@ router.post('/', function(req, res) {
     }
   }
 
-  // 正常功能处理：
+  // 根据入口结构，进行对应的正常功能处理：
   switch (lFunc){
-    case "userlogin": { // lExparm.user:{name:xx,word:xx}
-      /*req.session.loginUser = "testOk";
-      req.session.userLevel = 7;
-      res.json(rtnMsg('登录成功。' + "testOk" )); */
-
-      appDb.USER.getByName(lExparm.user.name, function (aErr, aRtn) {
+    case "userlogin": { // lExparm.user:{username:xx,md5:xx}
+      models.objUser.getByUUID(lExparm.user.username, function (aErr, aRtn) {
         if (aErr) res.json(rtnErr(aErr));
         else {
           if (aRtn) {
-            if (aRtn.WORD == lExparm.user.word) {
-              req.session.loginUser = lExparm.user.name;
+            if (aRtn.WORD == lExparm.user.md5) {
+              req.session.loginUser = lExparm.user.username;
               res.json(rtnMsg('登录成功。'));
             }
-            else {     res.json(rtnErr('密码有误'));   }
+            else {  res.json(rtnErr('密码有误'));   }
           }
           else {  res.json(rtnErr('用户不存在'));   }
         }
       });
       break;
     }
-    case "getAdminColumn": {
+    case "userChange": {
       //{"rtnCode":1,"rtnInfo":"成功。","alertType":0,"error":[],"exObj":{columnTree:[...]}}
-      lTreeData = require("./treeData.json");
-      var lRtn = rtnMsg('成功');
-      lRtn.exObj.columnTree = JSON.stringify(lTreeData);
-      res.json( lRtn );
+      // lExparm.username,old,new
+      models.objUser.getByUUID(lExparm.username, function (aErr, aRtn) {
+        if (aErr) res.json(rtnErr(aErr));
+        else {
+          if (aRtn) {
+            if (aRtn.WORD == lExparm.old) {
+              // 更新密码：
+              var l_user = models.objUser.new();
+              l_user.uuid = lExparm.username;
+              l_user.word = lExparm.new;
+              l_user._exState = "dirty";  // new , clean, dirty.
+              l_user._exUpdate = { word: lExparm.new };
+              models.objUser.save(l_user, comCallBackFunc );
+            }
+            else {  res.json(rtnErr('密码有误'));   }
+          }
+          else { res.json(rtnErr('用户不存在'));   }
+        }
+      });
       break;
     }
     case "setAdminColumn": {
@@ -82,11 +100,12 @@ router.post('/', function(req, res) {
       res.json( rtnMsg('成功') );
       break;
     }
-      case "exTools":
+      case "extools":
           // lExparm. {sql: ls_sql, word: ls_admin};
           if (lExparm.word == '91df0168b155dae510513d825d5d00b0') {
               if (lExparm.sql=='restart') process.exit(-1);
-              appDb.runSql(lExparm.sql, [], function(aErr, aRtn) {
+              dbAccess = require('../blazpk/dbAccess');
+              dbAccess.runSql(lExparm.sql, [], function(aErr, aRtn) {
                   if (aErr) res.json(rtnErr(aErr));
                   else {
                       ls_rtn = rtnMsg("成功");

@@ -4,15 +4,23 @@
 
 var express = require('express');
 var path = require('path');
+var bodyParser = require('body-parser');
+var session = require('express-session');
+
 var app = express();
 app.set('port', 80);
+
+app.use(session({ secret:'HapyFever', resave:true, saveUninitialized:true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
 var os = require('os');
 var ls_www = process.cwd() + (os.platform() == "win32" ? '\\www' : '/www');
 
 app.use(express.static(ls_www));
 
-//var rest = require('./routes/rest');
-//app.use('/rest', rest);
+var rest = require('./routes/rest');
+app.use('/rest', rest);
 
 var server = app.listen(app.get('port'), function() {
   console.log( server.address());
