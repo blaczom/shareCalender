@@ -111,10 +111,12 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
     selectHelper: true,
     select: function(start, end) {   // 背景被选择。会自动设置日期。
       lp.dealEvent = { uuid: blacUtil.createUUID() };
-      lp.dealEvent.start = start;
-      lp.dealEvent.end = end;
-      $('#eventModal').modal( { backdrop: "static" } );
+      lp.dealEvent.start = blacUtil.strDateTimeM(start._d);
+      lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
+      lp.dealEvent.allDay = true;
       lp.dealEvent._exState = 'new';
+      $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
+
     },
     eventClick: function(event, element) {
       lp.clickEvent = event;
@@ -133,19 +135,8 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
     events: []
   });
 
-  lp.delEvent = function (aNode) {
-    if (nodeData.id == 0) return;
-    if (window.confirm("确认删除他和所有的子记录么？"))
-      if (blacAccess.getDataState(nodeData) == blacAccess.dataState.new)
-        aNode.remove();
-      else {
-        lp.treeData[0].deleteId.push(nodeData.id);
-        aNode.remove();
-      }
-    };
-
   lp.saveEvent = function(){
-    blacAccess.setAdminColumn( lp.treeData[0]).then(
+    /* blacAccess.setAdminColumn( lp.treeData[0]).then(
       function (data) {
         if (data.rtnCode == 1) {
           console.log('save ok. ');
@@ -156,26 +147,24 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
       function (data) {
         console.log(data);
       });
-
-      var eventData = {
-        title: lp.eventTitle,
-        start: lp.eventStart,
-        end: lp.eventEnd,
-        editable: true,
-        _exState: "new"
-      };
-      // lp.dealEvent =  保存到数据库，然后刷新界面。
-
-      $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+    */
+      $('#eventModal').modal('toggle');
+      $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true); // stick? = true
       $('#calendar').fullCalendar('unselect');
+
+  };
+
+  lp.delEvent = function (aNode) {
+    if (nodeData.id == 0) return;
+    if (window.confirm("确认删除他和所有的子记录么？"))
+      if (blacAccess.getDataState(nodeData) == blacAccess.dataState.new)
+        aNode.remove();
+      else {
+        lp.treeData[0].deleteId.push(nodeData.id);
+        aNode.remove();
+      }
   };
 
   lp.closeEvent = function(){ $('#eventModal').modal('toggle'); };
-  lp.saveEvent = function(){
-    lp.dealEvent.start = start;
-    lp.dealEvent.end = end;
-
-
-  };
 });
 

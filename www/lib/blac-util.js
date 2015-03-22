@@ -84,6 +84,7 @@ angular.module('blac-util', ['angular-md5'])
     return {
       createUUID : UUID.prototype.createUUID,
       strDateTime : strDateTime,    // 向后一天，用 new Date( new Date() - 0 + 1*86400000)  1小时3600000
+      strDateTimeM : function(aTime, aOnlyDate){return strDateTime(aTime, aOnlyDate).slice(0,-3) },
       strDate : function(arg1){ return strDateTime(arg1,true) },
       verifyBool : function (aParam){ return (aParam==true||aParam=="true"||aParam=="True")?true:false;  } ,
       md5String: md5.createHash,

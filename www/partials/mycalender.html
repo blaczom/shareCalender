@@ -17,30 +17,27 @@
 
         <form style="text-align: center;" role="form">
           <div style="display: inline-block;min-width: 250px;">
-            <input ng-model="dealEvent.uuid" class="form-control" type="text" name="txtEvent1"
-                   class="form-control"  placeholder="uuid"  >
-            <input ng-model="dealEvent.id" class="form-control" type="text" name="txtEvent2"
-                   class="form-control"  placeholder="id"  >
-            <input ng-model="dealEvent.title" class="form-control" type="text" name="txtEvent3"
-                   class="form-control"  placeholder="title"  >
-            <input ng-model="dealEvent.allDay" class="form-control" type="text" name="txtEvent4"
-                   class="form-control"  placeholder="allDay"  >
-            <input ng-model="dealEvent.start" class="form-control" type="text" name="txtEvent5"
-                   class="form-control"  placeholder="start"  >
-            <input ng-model="dealEvent.end" class="form-control" type="text" name="txtEvent6"
-                   class="form-control"  placeholder="end"  >
-            <input ng-model="dealEvent.editable" class="form-control" type="text" name="txtEvent7"
-                   class="form-control"  placeholder="editable"  >
-            <input ng-model="dealEvent.finished" class="form-control" type="text" name="txtEvent8"
-                   class="form-control"  placeholder="finished"  >
-            <input ng-model="dealEvent.public" class="form-control" type="text" name="txtEvent8"
-                   class="form-control"  placeholder="public"  >
-            <input ng-model="dealEvent.owner" class="form-control" type="text" name="txtEvent8"
-                   class="form-control"  placeholder="owner"  >
-            <input ng-model="dealEvent._exState" class="form-control" type="text" name="txtEvent8"
-                   class="form-control"  placeholder="_exState"  >
-            <input ng-model="dealEvent.description" class="form-control" type="text" name="txtEvent8"
-                   class="form-control"  placeholder="description"  >
+            <input ng-model="dealEvent.uuid" class="form-control" type="text" name="txtEvent1" placeholder="uuid"  >
+            <input ng-model="dealEvent.id" class="form-control" type="text" name="txtEvent2" placeholder="id"  >
+            <input ng-model="dealEvent.title" class="form-control" type="text" name="txtEvent3" placeholder="title"  >
+            <div  class="checkbox">
+              <label>
+                <input ng-model="dealEvent.allDay" type="checkbox" name="txtEvent4"> allDay
+              </label>
+            </div>
+
+            <input ng-model="dealEvent.start" class="form-control" id="datetimepicker1" type="text" >
+            <input ng-model="dealEvent.end" class="form-control" id="datetimepicker2" type="text" name="txtEvent6" placeholder="end"  >
+
+
+
+
+            <input ng-model="dealEvent.editable" class="form-control" type="text" name="txtEvent7"  placeholder="editable"  >
+            <input ng-model="dealEvent.finished" class="form-control" type="text" name="txtEvent8"  placeholder="finished"  >
+            <input ng-model="dealEvent.public" class="form-control" type="text" name="txtEvent8"  placeholder="public"  >
+            <input ng-model="dealEvent.owner" class="form-control" type="text" name="txtEvent8"  placeholder="owner"  >
+            <input ng-model="dealEvent._exState" class="form-control" type="text" name="txtEvent8"  placeholder="_exState"  >
+            <input ng-model="dealEvent.description" class="form-control" type="text" name="txtEvent8"  placeholder="description"  >
           </div>
         </form>
 
@@ -49,8 +46,15 @@
         <button ng-click="saveEvent()"  type="button" class="btn btn-primary"> 保存 </button>
         <button ng-click="closeEvent()" type="button" class="btn btn-default"> 关闭 </button>
       </div>
+
+
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
 </div>
+
+<script type="text/javascript">
+  $('#datetimepicker1').datetimepicker( {lang:'ch', format:"Y-m-d H:i" } );
+  $('#datetimepicker2').datetimepicker( {lang:'ch', format:"Y-m-d H:i" } );
+</script>
