@@ -1,5 +1,5 @@
 /**
- * Created by blaczom@gmail.com on 2015/1/18.
+ * Created by blaczom@gmail.com on 2015/3/23.
  *
  * var app = angular.module('blacapp', ['blac-util']);
  * app.controller("ctrlXxx",function($scope,blacUtil) {
@@ -89,8 +89,9 @@ angular.module('blac-util', ['angular-md5'])
       verifyBool : function (aParam){ return (aParam==true||aParam=="true"||aParam=="True")?true:false;  } ,
       md5String: md5.createHash,
       shareCache: { global:{} },
-      wrapConfirm : function(aMsg,aObj){if(window.confirm(aMsg))aObj.apply(null, Array.prototype.slice.call(arguments,2) );}
-      // 如果确认，就调用函数：aObj。并把后面的参数传递进去。
+      wrapConfirm : function(aMsg,aObj){if(window.confirm(aMsg))aObj.apply(null, Array.prototype.slice.call(arguments,2) ); },
+      // 如果确认，就调用函数：aObj。并把后面的参数传递进去。//
+      isString: function(aObj) { return Object.prototype.toString.call(aObj) === "[object String]" }
     }
   }) // md5加密支持
   .factory('blacStore', function(){
@@ -117,7 +118,7 @@ angular.module('blac-util', ['angular-md5'])
       appendErr: function(){ if (_debug) console.log(arguments);
         if (arguments.length > 0) l_store.setItem(_storeErr, l_store.getItem(_storeErr) + JSON.stringify(arguments));
       },
-      customGet:function(aKey){ return( JSON.parse( l_store.getItem(aKey)||'{}' ) ); },
+      customGet:function(aKey){ return( JSON.parse( l_store.getItem(aKey)||'{}' ) ); },   // json.parse不能为空。
       customSet:function(aKey, aObj) { return(l_store.setItem(aKey, JSON.stringify(aObj))) ;  },
       setLog:function(aObj){return(l_store.setItem('blacStoreStateLog', JSON.stringify(aObj))) ;}
     };
@@ -208,6 +209,8 @@ angular.module('blac-util', ['angular-md5'])
       userLoginQ: userLoginQ,
       userChange:function(aUser,aOld,aNew){return httpQ( lpUrl,{func:'userChange',
         ex_parm:{username:aUser,old:md5.createHash(aUser+aOld), new: md5.createHash(aUser+aNew)}})},
+      setEvent:function(aEvent){return httpQ(lpUrl,{func:'setEvent',ex_parm:{dealEvent: aEvent}  })},
+
       getAdminColumn:function(aParam){return httpQ(lpUrl,{func:'getAdminColumn',ex_parm:aParam })},
       setAdminColumn:function(aArgs){return httpQ(lpUrl,{func:'setAdminColumn',ex_parm:{columnTree: aArgs } })},
       getArticleList:function(aLoc,aColId){return httpQ(lpUrl,{func:'getArticleList',ex_parm:{columnId:aColId,location:aLoc} })},

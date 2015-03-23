@@ -25,19 +25,21 @@
                 <input ng-model="dealEvent.allDay" type="checkbox" name="txtEvent4"> allDay
               </label>
             </div>
-
             <input ng-model="dealEvent.start" class="form-control" id="datetimepicker1" type="text" >
             <input ng-model="dealEvent.end" class="form-control" id="datetimepicker2" type="text" name="txtEvent6" placeholder="end"  >
-
-
-
-
-            <input ng-model="dealEvent.editable" class="form-control" type="text" name="txtEvent7"  placeholder="editable"  >
-            <input ng-model="dealEvent.finished" class="form-control" type="text" name="txtEvent8"  placeholder="finished"  >
-            <input ng-model="dealEvent.public" class="form-control" type="text" name="txtEvent8"  placeholder="public"  >
+            <div  class="checkbox">
+              <label>
+                <input ng-model="dealEvent.finished" type="checkbox" name="txtEvent8"> finished
+              </label>
+            </div>
+            <div  class="checkbox">
+              <label>
+                <input ng-model="dealEvent.public" type="checkbox" name="txtEvent8"> public
+              </label>
+            </div>
             <input ng-model="dealEvent.owner" class="form-control" type="text" name="txtEvent8"  placeholder="owner"  >
             <input ng-model="dealEvent._exState" class="form-control" type="text" name="txtEvent8"  placeholder="_exState"  >
-            <input ng-model="dealEvent.description" class="form-control" type="text" name="txtEvent8"  placeholder="description"  >
+            <input ng-model="dealEvent.description" class="form-control" type="textarea" name="txtEvent8"  placeholder="description"  >
           </div>
         </form>
 

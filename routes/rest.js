@@ -59,7 +59,9 @@ router.post('/', function(req, res) {
           if (aRtn) {
             if (aRtn.WORD == lExparm.user.md5) {
               req.session.loginUser = lExparm.user.username;
-              res.json(rtnMsg('登录成功。'));
+              var l_rtnUsr = rtnMsg('登录成功。');
+              l_rtnUsr.exObj = aRtn.EXPARM;
+              res.json(l_rtnUsr);
             }
             else {  res.json(rtnErr('密码有误'));   }
           }
@@ -91,13 +93,14 @@ router.post('/', function(req, res) {
       });
       break;
     }
-    case "setAdminColumn": {
-      // { func: 'setAdminColumn', ex_parm:{ columnTree: [...] }}
-      // var lfs = require('fs');
-      // var lrtn = lfs.writeFileSync("./routes/treeData.json", lExparm.columnTree);
-
-
-      res.json( rtnMsg('成功') );
+    case "setEvent": {
+      /*{ func: 'setEvent', ex_parm:{     dealEvent:    lp.dealEvent = { uuid: blacUtil.createUUID() };
+      lp.dealEvent.start = blacUtil.strDateTimeM(start._d);
+      lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
+      lp.dealEvent.allDay = true;
+      lp.dealEvent._exState = 'new';}}
+      */
+      models.objEvent.save(lExparm.dealEvent, comCallBackFunc );
       break;
     }
       case "extools":

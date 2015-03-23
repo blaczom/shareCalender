@@ -19,7 +19,7 @@ var setLogParam = function(aOpt) {
 };
 
 var info = function(){
-  var ls_t = JSON.stringify(arguments) + '\n';
+  var ls_t = getDateTime() + JSON.stringify(arguments) + '\n';
   if (gbShowInfo) {
     console.log(ls_t);
     if (gb2file) fs.appendFileSync(gFileLog, ls_t);

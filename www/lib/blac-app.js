@@ -81,6 +81,8 @@ app.controller("ctrlLogin",function($rootScope,$scope,$location,blacStore,blacAc
         blacStore.localUser(lp.lUser.username);
         blacStore.localWord(lp.lUser.pw);
         blacStore.localRem(lp.lUser.rem);
+        if (data.exObj.hasOwnProperty('color')) blacStore.customSet('eventColor', data.exObj.color);
+
         $rootScope.$broadcast(blacAccess.gEvent.login);
         $location.path('/mycalender');
       }
@@ -115,6 +117,12 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
       lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
       lp.dealEvent.allDay = true;
       lp.dealEvent._exState = 'new';
+      lp.dealEvent.finished = false;
+      lp.dealEvent.public = true;
+
+      var l_eventColor = blacStore.customGet('eventColor');
+      if (blacUtil.isString(l_eventColor)) lp.dealEvent.color = l_eventColor;
+
       $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
 
     },
@@ -122,6 +130,7 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
       lp.clickEvent = event;
       event.backgroundColor = "lightblue";
       event.description = 'This is a cool event';
+
       $('#calendar').fullCalendar('updateEvent', event);  // 更新对象
       console.log(event);
       window.getYou = event;
@@ -136,21 +145,20 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
   });
 
   lp.saveEvent = function(){
-    /* blacAccess.setAdminColumn( lp.treeData[0]).then(
+    blacAccess.setEvent( lp.dealEvent  ).then(
       function (data) {
         if (data.rtnCode == 1) {
           console.log('save ok. ');
-          lp.initColumDefTree();
+          lp.dealEvent._exState = 'clean';
+          $('#eventModal').modal('toggle');
+          $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true); // stick? = true
+          $('#calendar').fullCalendar('unselect');
         }
-        else console.log(data);
+        else { alert('保存失败。请通知管理员'); console.log(data); }
       },
       function (data) {
-        console.log(data);
+        alert('保存失败。请通知管理员'); console.log(data) ;
       });
-    */
-      $('#eventModal').modal('toggle');
-      $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true); // stick? = true
-      $('#calendar').fullCalendar('unselect');
 
   };
 

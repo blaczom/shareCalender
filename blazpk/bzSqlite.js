@@ -36,6 +36,8 @@ if (!fs.existsSync(gdbFile)) createDB();
 
 var gdb = new sqlite3.Database(gdbFile);
 
+gdb.on('trace', function() { logInfo(  arguments ) } );
+
 var genSave = function (aObj, aTable) {
 //  _exState用来指示处理。  根据json对象 和 对应的表名（安全起见不能保存在json中），返回sql和执行参数。
 
@@ -138,6 +140,7 @@ var comSave = function(aTarget, aTable, aCallback) {
     logInfo("genSave ok, com save will runsql with param: ", aTarget, aTable, l_gen);
     gdb.run(l_gen[0], l_gen[1], function (err, row) {
       row = this.changes;  // 影响的行。
+      if (err) logErr(err);
       aCallback(err, row);
     });
   }
