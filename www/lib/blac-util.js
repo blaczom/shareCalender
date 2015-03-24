@@ -181,7 +181,7 @@ angular.module('blac-util', ['angular-md5'])
           deferred.resolve(data || []);
         })
         .error(function (data, status, headers, config) {
-          $rootScope.$broadcast(gEvent.broadcast, "访问服务器错误：" + msg);
+          $rootScope.$broadcast(gEvent.broadcast, "访问服务器错误。");
           deferred.reject(status);
         });
       return deferred.promise;
@@ -197,7 +197,7 @@ angular.module('blac-util', ['angular-md5'])
       if (aRtn.rtnCode == 0)       // 当返回0的时候表示有后续的附加操作。进一步判断appendOper
         switch (aRtn.appendOper) {  // appendOper: login
           case 'login':
-            $location.path('/');
+            $location.path('/login');
             return false;
             break;
         };
@@ -210,30 +210,17 @@ angular.module('blac-util', ['angular-md5'])
       userChange:function(aUser,aOld,aNew){return httpQ( lpUrl,{func:'userChange',
         ex_parm:{username:aUser,old:md5.createHash(aUser+aOld), new: md5.createHash(aUser+aNew)}})},
       setEvent:function(aEvent){return httpQ(lpUrl,{func:'setEvent',ex_parm:{dealEvent: aEvent}  })},
-
-      getAdminColumn:function(aParam){return httpQ(lpUrl,{func:'getAdminColumn',ex_parm:aParam })},
-      setAdminColumn:function(aArgs){return httpQ(lpUrl,{func:'setAdminColumn',ex_parm:{columnTree: aArgs } })},
-      getArticleList:function(aLoc,aColId){return httpQ(lpUrl,{func:'getArticleList',ex_parm:{columnId:aColId,location:aLoc} })},
-      getArticleCont:function(aArtId){return httpQ(lpUrl,{func:'getArticleCont',ex_parm:{articleId:aArtId} })},
-      setArticleCont:function(aArtObj){return httpQ(lpUrl,{func:'setArticleCont',ex_parm:{article:aArtObj} })},
-      deleteArticleCont:function(aArtId){return httpQ(lpUrl,{func:'deleteArticleCont',ex_parm:{articleId:aArtId} })},
-      getUserList:function(aLoc){return httpQ(lpUrl,{func:'getUserList',ex_parm:{ location:aLoc } })},
-      setUserCont:function(aUser){return httpQ(lpUrl,{func:'setUserCont',ex_parm:{ user:aUser} })},
-      deleteUserCont:function(aName){return httpQ(lpUrl,{func:'deleteUserCont',ex_parm:{username :aName }} ) },
-      extoolsPromise: function(l_param){return httpQ(lpUrl,{func:'extools',ex_parm:l_param  } ) } ,
-      getForeCol: function(l_param){return httpQ(lpUrl,{func:'getForeCol',ex_parm:l_param  } ) } ,
-      getForeArt: function(aLoc, aParentKind,aKind, aParentId, aId, aHasContent){return httpQ(lpUrl,{func:'getForeArt',
-        ex_parm:{location:aLoc,parentKind:aParentKind, kind:aKind,parentId:aParentId, id:aId, hasContent:aHasContent}  } ) } ,
+      getEvent:function(aOwner){return httpQ(lpUrl,{func:'getEvent',ex_parm:{owner: aOwner}  })},
+      delEvent:function(aUUID){return httpQ(lpUrl,{func:'delEvent',ex_parm:{uuid: aUUID}  })},
 
       checkRtn: checkRtn,
       dataState : dataState,
       setDataState:function(aObj,aState){if($.isArray(aObj)) for(var i=0;i<aObj.length;i++)aObj[i]._exState=aState; else if(aObj) aObj._exState=aState;},
       getDataState:function(aObj) {return aObj._exState },
-      gEvent:gEvent
+      gEvent:gEvent,
+      eventColumn: ['allDay','_exState','description','start','end','finished','id','owner','public','title','uuid']
     } ;
-
   })
-
 ;
 
 

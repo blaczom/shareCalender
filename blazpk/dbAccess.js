@@ -18,9 +18,11 @@ var acUser = {
 
 var acEvent = {
   save : function (aArticle, aCallback) {  bzDb.comSave(aArticle, 'EVENT', aCallback); },
-  getByUUID : function (aID, aCallback) { bzDb.gdb.get("select * from ARTICLE where UUID=?", aID, aCallback); },
-  delete : function(aID, aCallback){ bzDb.runSql("delete from ARTICLE where UUID = ?", aID, aCallback); },
-  getByDate: function (aDate, aCallback) { bzDb.gdb.get("select * from ARTICLE where UUID=?", aID, aCallback); }
+  getByUUID : function (aID, aCallback) { bzDb.gdb.get("select * from EVENT where UUID=?", aID, aCallback); },
+  delete : function(aID, aCallback){ bzDb.runSql("delete from EVENT where UUID = ?", aID, aCallback); },
+  getByDate: function (aDate, aCallback) { bzDb.gdb.get("select * from EVENT where UUID=?", aID, aCallback); },
+  getByOwner: function(aOwner, aCallback)
+  {  bzDb.runSql("select * from EVENT where owner=? or PUBLIC = 1 ", aOwner, aCallback) }
 };
 
 exports.acUser = acUser;

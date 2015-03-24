@@ -64,7 +64,7 @@ app.controller("ctrlAdminTop",function($location,$scope,blacStore,blacAccess) {
     lp.broadInfo = aInfo;
   });
   lp.logout = function(){
-    lp.loginedUser = null
+    lp.loginedUser = null;
     $location.path('/login')
   }
 
@@ -96,83 +96,137 @@ app.controller("ctrlLogin",function($rootScope,$scope,$location,blacStore,blacAc
 app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
   var lp = $scope;
   lp.wrapConfirm = blacUtil.wrapConfirm;
-  /// ;
-  lp.dealEvent = {};
+  /// 前台所有的属性，以小写为主。 后台数据库和从数据库返还的名字，大写。
+  lp.dealEvent = {};  // 记录当前正在搞的event
 
-  $('#calendar').fullCalendar({
-    header: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'month,basicWeek,basicDay'
-    },
-    lang: 'zh-cn',
-    defaultDate: blacUtil.strDateTime(null, true),
-    editable: true,   // 是否允许拖动。
-    eventLimit: true, // allow "more" link when too many events
-    selectable: true,  // 允许背景被选择。
-    selectHelper: true,
-    select: function(start, end) {   // 背景被选择。会自动设置日期。
-      lp.dealEvent = { uuid: blacUtil.createUUID() };
-      lp.dealEvent.start = blacUtil.strDateTimeM(start._d);
-      lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
-      lp.dealEvent.allDay = true;
-      lp.dealEvent._exState = 'new';
-      lp.dealEvent.finished = false;
-      lp.dealEvent.public = true;
-
-      var l_eventColor = blacStore.customGet('eventColor');
-      if (blacUtil.isString(l_eventColor)) lp.dealEvent.color = l_eventColor;
-
-      $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
-
-    },
-    eventClick: function(event, element) {
-      lp.clickEvent = event;
-      event.backgroundColor = "lightblue";
-      event.description = 'This is a cool event';
-
-      $('#calendar').fullCalendar('updateEvent', event);  // 更新对象
-      console.log(event);
-      window.getYou = event;
-    },
-    eventDrop: function(event, delta, revertFunc) {
-      alert(event.title + " was dropped on " + event.start.format());
-      if (!confirm("Are you sure about this change?")) {
-        revertFunc();
-      }
-    },
-    events: []
-  });
-
-  lp.saveEvent = function(){
-    blacAccess.setEvent( lp.dealEvent  ).then(
-      function (data) {
+  lp.initData = function() {
+    blacAccess.getEvent( blacStore.localUser() ).then(     /// 得到当前用户权限的event。
+      function(data){
+        if (!blacAccess.checkRtn(data)) return ;  // 登录监察。
         if (data.rtnCode == 1) {
-          console.log('save ok. ');
-          lp.dealEvent._exState = 'clean';
-          $('#eventModal').modal('toggle');
-          $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true); // stick? = true
-          $('#calendar').fullCalendar('unselect');
+          // data 是一个event的数据哈  $("#calendar").fullCalendar("removeEvents",event.id);
+          var showEvent = [];           // 检索所有的event对象用来显示。
+          for (var i in data.exObj){
+            showEvent.push({
+              uuid: data.exObj[i].UUID ,
+              id: data.exObj[i].UUID,
+              allDay : blacUtil.verifyBool(data.exObj[i].ALLDAY),
+              end: data.exObj[i].END,
+              finished: blacUtil.verifyBool(data.exObj[i].FINISHED),
+              owner: data.exObj[i].OWNER,
+              public: blacUtil.verifyBool(data.exObj[i].PUBLIC),
+              start: data.exObj[i].START,
+              title: data.exObj[i].TITLE,
+              description: data.exObj[i].DESCRIPTION
+            })
+          };
+          // console.log('get event ok. ', showEvent);
+          $('#calendar').fullCalendar({
+            header: {
+              left: 'prev,next today',
+              center: 'title',
+              right: 'month,basicWeek,basicDay'
+            },
+            lang: 'zh-cn',
+            defaultDate: blacUtil.strDateTime(null, true),
+            editable: true,   // 是否允许拖动。
+            eventLimit: true, // allow "more" link when too many events
+            selectable: true,  // 允许背景被选择。
+            selectHelper: true,
+            events: showEvent,
+            select: function(start, end) {   // 背景被选择。会自动设置日期。
+              /// console.log('select');window.getYou = start;
+              lp.dealEvent = { uuid: blacUtil.createUUID() };
+              lp.dealEvent.id = lp.dealEvent.uuid;
+              lp.dealEvent.start = blacUtil.strDateTimeM(start._d);
+              lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
+              lp.dealEvent.allDay = true;
+              lp.dealEvent._exState = 'new';
+              lp.dealEvent.finished = false;
+              lp.dealEvent.public = true;
+              var l_eventColor = blacStore.customGet('eventColor');
+              if (blacUtil.isString(l_eventColor)) lp.dealEvent.color = l_eventColor;
+              $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );  // 显示窗口：绑定在dealevent上。
+
+            },
+            eventClick: function(event, element) {
+              console.log('eventClick');window.getYou = event;
+              // event.backgroundColor = "lightblue";
+              lp.dealEvent = event; // 记录当前点击的event。
+              // lp.dealEvent.start = blacUtil.strDateTimeM(event.start._d);
+              // lp.dealEvent.end = blacUtil.strDateTimeM(event.end._d);         用个临时的东东来保存时间吧。因为太复杂了。
+              lp.dealEvent._exState = 'dirty';
+              $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
+            },
+            eventDrop: function(event, delta, revertFunc) {
+              alert(event.title + " was dropped on " + event.start.format());
+              if (!confirm("Are you sure about this change?")) {
+                revertFunc();
+              }
+            }
+          });
         }
         else { alert('保存失败。请通知管理员'); console.log(data); }
       },
       function (data) {
         alert('保存失败。请通知管理员'); console.log(data) ;
       });
+  };
+
+  lp.saveEvent = function(){
+    var l_event = {};
+
+    // 有点击的event。click的时候，是object
+    if (lp.dealEvent.allDay) {  // select 时候，是字符串。 。
+      lp.dealEvent.start = lp.dealEvent.start.substring(0,10);
+      lp.dealEvent.end = lp.dealEvent.end.substring(0, 10);
+    };
+
+    for (var i in lp.dealEvent) if (blacAccess.eventColumn.indexOf(i)>-1) l_event[i] = lp.dealEvent[i];
+    //console.log("save event ", l_event);
+    blacAccess.setEvent( l_event  ).then(
+      function (data) {
+        if (data.rtnCode == 1) {
+          console.log('save ok. ');
+          $('#eventModal').modal('toggle');
+          if (lp.dealEvent._exState == 'new')
+            $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true);
+          else {
+            $('#calendar').fullCalendar('updateEvent', lp.dealEvent);
+          }
+          $('#calendar').fullCalendar('unselect');
+          lp.dealEvent._exState = 'clean';
+          if (lp.origEvent) lp.origEvent._exState = 'clean';  // 原来的节点也要摆平。
+        }
+        else { alert('保存失败。请通知管理员'); console.log(data); }
+      },
+      function (err) {
+        alert('保存失败。请通知管理员'); console.log(err) ;
+      });
 
   };
 
   lp.delEvent = function (aNode) {
-    if (nodeData.id == 0) return;
-    if (window.confirm("确认删除他和所有的子记录么？"))
-      if (blacAccess.getDataState(nodeData) == blacAccess.dataState.new)
-        aNode.remove();
-      else {
-        lp.treeData[0].deleteId.push(nodeData.id);
-        aNode.remove();
-      }
+    if (window.confirm("确认删除记录么？"))
+      blacAccess.delEvent(lp.dealEvent.uuid).then(
+        function(data){
+          if (data.rtnCode == 1) {
+            console.log('delete ok. ');
+            $('#eventModal').modal('toggle');
+            $("#calendar").fullCalendar("removeEvents",lp.dealEvent.id);
+            $('#calendar').fullCalendar('unselect');
+            lp.dealEvent = {};
+          }
+          else { alert('删除失败。请通知管理员'); console.log(data); }
+        },
+        function(err){
+          alert('删除失败。请通知管理员'); console.log(err) ;
+        }
+      );
   };
 
-  lp.closeEvent = function(){ $('#eventModal').modal('toggle'); };
+  lp.closeEvent = function(){ $('#eventModal').modal('toggle'); lp.dealEvent = {}; };
+
+  lp.initData();
 });
 

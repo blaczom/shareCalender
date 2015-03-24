@@ -14,8 +14,8 @@ var express = require('express'),
 var rtnErr = function(aMsg, aErr) {
   return {rtnCode:-1, "rtnInfo":JSON.stringify(aMsg), "alertType":0, error:JSON.stringify(aErr), exObj:{} }
 };
-var rtnMsg = function(aMsg) {
-  return {rtnCode:1, "rtnInfo":aMsg, "alertType":0, error: [], exObj:{} }
+var rtnMsg = function(aMsg, aObj) {
+  return {rtnCode:1, "rtnInfo":aMsg, "alertType":0, error: [], exObj:aObj }
 };
 
 function logInfo(){console.log(arguments);};
@@ -31,7 +31,7 @@ router.post('/', function(req, res) {
 
   // 定义一个通用的返回函数。
   function comCallBackFunc(aErr, aRtn) {
-    if (aErr) res.json( rtnErr(aErr) ); else  res.json( rtnMsg(aRtn.rtnInfo) );
+    if (aErr) res.json( rtnErr("操作失败", aErr) ); else  res.json( rtnMsg("操作成功", aRtn) );
   }
 
   // 得到一个通用的入口结构。
@@ -40,7 +40,7 @@ router.post('/', function(req, res) {
   var lExparm = req.body['ex_parm'];  // 参数对象: {}
 
   /* 除了userLogin, userReg, 以外，其余的功能都需要 ---登录检查，  */
-  if ("userlogin,userReg,exTools,,,".indexOf(lFunc+",") < 0) {   // 需要登录的对象。
+  if ("userlogin,userReg,extools,,,".indexOf(lFunc+",") < 0) {   // 需要登录的对象。
     if (!checkLogin(req,res)) {
       var l_rtn = rtnErr('未登录，请先登录。');
       l_rtn.rtnCode = 0;
@@ -103,23 +103,30 @@ router.post('/', function(req, res) {
       models.objEvent.save(lExparm.dealEvent, comCallBackFunc );
       break;
     }
-      case "extools":
-          // lExparm. {sql: ls_sql, word: ls_admin};
-          if (lExparm.word == '91df0168b155dae510513d825d5d00b0') {
-              if (lExparm.sql=='restart') process.exit(-1);
-              dbAccess = require('../blazpk/dbAccess');
-              dbAccess.runSql(lExparm.sql, [], function(aErr, aRtn) {
-                  if (aErr) res.json(rtnErr(aErr));
-                  else {
-                      ls_rtn = rtnMsg("成功");
-                      ls_rtn.exObj = aRtn?aRtn:[];  // 返回数组。
-                      res.json(ls_rtn);
-                  }
-              })
-          }
-          else
-              res.json(rtnErr(aErr));
-          break;
+    case "getEvent":
+      models.objEvent.getByOwner(lExparm.owner, comCallBackFunc);  // ex_parm:{owner: aOwner}  })
+      break;
+    case "delEvent":
+      models.objEvent.delete(lExparm.uuid, comCallBackFunc);  // ex_parm:{owner: aOwner}  })
+      break;
+
+    case "extools":
+        // lExparm. {sql: ls_sql, word: ls_admin};
+      if (lExparm.word == '91df0168b155dae510513d825d5d00b0') {
+          if (lExparm.sql=='restart') process.exit(-1);
+          dbAccess = require('../blazpk/dbAccess');
+          dbAccess.runSql(lExparm.sql, [], function(aErr, aRtn) {
+              if (aErr) res.json(rtnErr(aErr));
+              else {
+                  ls_rtn = rtnMsg("成功");
+                  ls_rtn.exObj = aRtn?aRtn:[];  // 返回数组。
+                  res.json(ls_rtn);
+              }
+          })
+      }
+      else
+          res.json(rtnErr(aErr));
+      break;
 
     default :
       res.json(rtnErr('不存在该请求：' + JSON.stringify(req.body)));

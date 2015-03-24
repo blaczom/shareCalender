@@ -43,6 +43,8 @@ objEvent.prototype.save = gdbAccess.acEvent.save;
 objEvent.prototype.delete = gdbAccess.acEvent.delete;
 objEvent.prototype.getByUUID = gdbAccess.acEvent.getByUUID;
 objEvent.prototype.getByDate = gdbAccess.acEvent.getByDate;
+objEvent.prototype.getByOwner = gdbAccess.acEvent.getByOwner;
+
 
 exports.objUser = objUser.prototype.new();
 exports.objEvent = objEvent.prototype.new();
