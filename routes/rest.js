@@ -93,24 +93,32 @@ router.post('/', function(req, res) {
       });
       break;
     }
-    case "setEvent": {
-      /*{ func: 'setEvent', ex_parm:{     dealEvent:    lp.dealEvent = { uuid: blacUtil.createUUID() };
-      lp.dealEvent.start = blacUtil.strDateTimeM(start._d);
-      lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
-      lp.dealEvent.allDay = true;
-      lp.dealEvent._exState = 'new';}}
-      */
-      models.objEvent.save(lExparm.dealEvent, comCallBackFunc );
-      break;
-    }
     case "getEvent":
       models.objEvent.getByOwner(lExparm.owner, comCallBackFunc);  // ex_parm:{owner: aOwner}  })
       break;
-    case "delEvent":
-      models.objEvent.delete(lExparm.uuid, comCallBackFunc);  // ex_parm:{owner: aOwner}  })
+    case "setEvent": {
+      if ((lExparm.dealEvent._exState == 'dirty') && (lExparm.dealEvent.owner != req.session.loginUser))
+        res.json(rtnErr('不能更改别人的计划'));
+      else
+        models.objEvent.save(lExparm.dealEvent, comCallBackFunc );
       break;
-
-    case "extools":
+    }
+    case "getUserParm":
+      models.objUser.getUserParm(comCallBackFunc);  // ex_parm:{owner: aOwner}  })
+      break;
+    case "delEvent":
+      models.objEvent.getByUUID(lExparm.uuid, function(err, data){
+        if (err) res.json(rtnErr(err));
+        else{
+          if (data.OWNER == req.session.loginUser){
+            models.objEvent.delete(lExparm.uuid, comCallBackFunc);
+          }
+          else
+            res.json(rtnErr('不能删除别人的计划'));
+        }
+      });
+      break;
+    case "extools": {
         // lExparm. {sql: ls_sql, word: ls_admin};
       if (lExparm.word == '91df0168b155dae510513d825d5d00b0') {
           if (lExparm.sql=='restart') process.exit(-1);
@@ -127,6 +135,7 @@ router.post('/', function(req, res) {
       else
           res.json(rtnErr(aErr));
       break;
+    }
 
     default :
       res.json(rtnErr('不存在该请求：' + JSON.stringify(req.body)));

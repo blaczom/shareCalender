@@ -4,7 +4,11 @@
     "CREATE TABLE if not exists EVENT(UUID CHAR(32) NOT NULL PRIMARY KEY, ID CHAR(32), TITLE NVARCHAR2(255), ALLDAY BOOLEAN, START NVARCHAR2(500), END NVARCHAR2(500), EDITABLE BOOLEAN, FINISHED BOOLEAN, PUBLIC BOOLEAN, OWNER NVARCHAR2(50), DESCRIPTION NVARCHAR2(6000) ) WITHOUT ROWID; " ,
     "CREATE INDEX if not exists [idx_event_id] ON [EVENT] ([UUID] DESC);",
     "CREATE INDEX if not exists [idx_event_start] ON [EVENT] ([start] DESC);",
-    "INSERT INTO USER VALUES('admin', '4f9268d766cb3dcf4cbc912b39f6e06c', '{}'); "
+    "INSERT INTO USER VALUES('admin', '4f9268d766cb3dcf4cbc912b39f6e06c', '{\"bgColor\":\"grey\"}'); ",
+    "INSERT INTO USER VALUES('dh', 'dacd3f226a2fd36fb23a5e817f108985', '{\"bgColor\":\"darkred\"}'); ",
+    "INSERT INTO USER VALUES('lzj', 'a9e480088374ae34b98ec185dc6c503c', '{\"bgColor\":\"blue\"}'); ",
+    "INSERT INTO USER VALUES('zyx', '0a8bb71ff35bf6d8704b37d7961d9cfd', '{\"bgColor\":\"green\"}'); ",
+    "INSERT INTO USER VALUES('xyt', '2bda56da18153e41826450f03c6dfbad', '{\"bgColor\":\"purple\"}'); "
   ],
   "sqlTest": [
     "INSERT INTO USER VALUES('admin', '4f9268d766cb3dcf4cbc912b39f6e06c'); "

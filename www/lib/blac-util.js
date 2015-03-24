@@ -209,9 +209,11 @@ angular.module('blac-util', ['angular-md5'])
       userLoginQ: userLoginQ,
       userChange:function(aUser,aOld,aNew){return httpQ( lpUrl,{func:'userChange',
         ex_parm:{username:aUser,old:md5.createHash(aUser+aOld), new: md5.createHash(aUser+aNew)}})},
+      getUserParm:function() {return httpQ( lpUrl,{ func:'getUserParm',ex_parm:{}  } ) } ,
       setEvent:function(aEvent){return httpQ(lpUrl,{func:'setEvent',ex_parm:{dealEvent: aEvent}  })},
       getEvent:function(aOwner){return httpQ(lpUrl,{func:'getEvent',ex_parm:{owner: aOwner}  })},
       delEvent:function(aUUID){return httpQ(lpUrl,{func:'delEvent',ex_parm:{uuid: aUUID}  })},
+      extoolsPromise: function(l_param){return httpQ(lpUrl,{func:'extools',ex_parm:l_param  } ) } ,
 
       checkRtn: checkRtn,
       dataState : dataState,

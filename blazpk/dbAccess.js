@@ -11,9 +11,9 @@ var acUser = {
   save:function (aUser, aCallback){ bzDb.comSave(aUser, 'USER', aCallback); },
   delete : function(aUUID, aCallback){
     bzDb.runSql("delete from USER where uuid = ?", aUUID, aCallback); } ,
-  getByUUID:function(aUUID, aCallback) {
-    bzDb.gdb.get("select * from user where uuid = ?" , aUUID, aCallback);
-  }
+  getByUUID:function(aUUID, aCallback) { bzDb.gdb.get("select * from user where uuid = ?" , aUUID, aCallback); },
+  getUserParm:function(aCallback) { bzDb.runSql("select UUID,EXPARM from user", [], aCallback); }
+
 };
 
 var acEvent = {

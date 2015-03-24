@@ -81,7 +81,8 @@ app.controller("ctrlLogin",function($rootScope,$scope,$location,blacStore,blacAc
         blacStore.localUser(lp.lUser.username);
         blacStore.localWord(lp.lUser.pw);
         blacStore.localRem(lp.lUser.rem);
-        if (data.exObj.hasOwnProperty('color')) blacStore.customSet('eventColor', data.exObj.color);
+        var l_userParm = JSON.parse( data.exObj );
+        if (l_userParm.hasOwnProperty('bgColor')) blacStore.customSet('eventColor', l_userParm.bgColor);
 
         $rootScope.$broadcast(blacAccess.gEvent.login);
         $location.path('/mycalender');
@@ -94,10 +95,13 @@ app.controller("ctrlLogin",function($rootScope,$scope,$location,blacStore,blacAc
 });
 
 app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
+
   var lp = $scope;
   lp.wrapConfirm = blacUtil.wrapConfirm;
   /// 前台所有的属性，以小写为主。 后台数据库和从数据库返还的名字，大写。
-  lp.dealEvent = {};  // 记录当前正在搞的event
+  lp.dealEvent = {};  // 前台显示的event内容。
+  lp.origEvent = null;  // 当前正在处理的event
+  lp.userParm = {};    // 所有用户的参数。（颜色用）
 
   lp.initData = function() {
     blacAccess.getEvent( blacStore.localUser() ).then(     /// 得到当前用户权限的event。
@@ -114,6 +118,7 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
               end: data.exObj[i].END,
               finished: blacUtil.verifyBool(data.exObj[i].FINISHED),
               owner: data.exObj[i].OWNER,
+              backgroundColor : lp.userParm[data.exObj[i].OWNER]['bgColor'],
               public: blacUtil.verifyBool(data.exObj[i].PUBLIC),
               start: data.exObj[i].START,
               title: data.exObj[i].TITLE,
@@ -135,11 +140,12 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
             selectHelper: true,
             events: showEvent,
             select: function(start, end) {   // 背景被选择。会自动设置日期。
-              /// console.log('select');window.getYou = start;
-              lp.dealEvent = { uuid: blacUtil.createUUID() };
+              console.log('select');window.getYou = start;
+              lp.dealEvent = { uuid: blacUtil.createUUID() };  // 新建的一个事件的内容。
               lp.dealEvent.id = lp.dealEvent.uuid;
               lp.dealEvent.start = blacUtil.strDateTimeM(start._d);
               lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
+              lp.dealEvent.owner = blacStore.localUser();
               lp.dealEvent.allDay = true;
               lp.dealEvent._exState = 'new';
               lp.dealEvent.finished = false;
@@ -152,9 +158,10 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
             eventClick: function(event, element) {
               console.log('eventClick');window.getYou = event;
               // event.backgroundColor = "lightblue";
-              lp.dealEvent = event; // 记录当前点击的event。
-              // lp.dealEvent.start = blacUtil.strDateTimeM(event.start._d);
-              // lp.dealEvent.end = blacUtil.strDateTimeM(event.end._d);         用个临时的东东来保存时间吧。因为太复杂了。
+              lp.origEvent = event; // 记录当前点击的event。 以后用来更新。
+              for (var i in event) if (blacAccess.eventColumn.indexOf(i)>-1) lp.dealEvent[i] = event[i];
+              lp.dealEvent.start = blacUtil.strDateTimeM(event.start._d);  // 转换成字符串显示。保存时转回去。
+              lp.dealEvent.end = blacUtil.strDateTimeM(event.end._d);
               lp.dealEvent._exState = 'dirty';
               $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
             },
@@ -175,58 +182,85 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
 
   lp.saveEvent = function(){
     var l_event = {};
-
-    // 有点击的event。click的时候，是object
-    if (lp.dealEvent.allDay) {  // select 时候，是字符串。 。
-      lp.dealEvent.start = lp.dealEvent.start.substring(0,10);
-      lp.dealEvent.end = lp.dealEvent.end.substring(0, 10);
-    };
+    console.log('saveEvent ', lp.dealEvent);
+    lp.dealEvent.start = $('#datetimepicker1').val();
+    lp.dealEvent.end = $('#datetimepicker2').val();
 
     for (var i in lp.dealEvent) if (blacAccess.eventColumn.indexOf(i)>-1) l_event[i] = lp.dealEvent[i];
-    //console.log("save event ", l_event);
+    // 有点击的event。click的时候，是object
+    /* if (lp.dealEvent.allDay) {  // select 时候，是字符串。 。
+     lp.dealEvent.start = lp.dealEvent.start.substring(0,10);
+     lp.dealEvent.end = lp.dealEvent.end.substring(0, 10);
+     }; */
     blacAccess.setEvent( l_event  ).then(
       function (data) {
         if (data.rtnCode == 1) {
           console.log('save ok. ');
           $('#eventModal').modal('toggle');
           if (lp.dealEvent._exState == 'new')
-            $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true);
+            $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true);  // 直接render内容就可以。
           else {
-            $('#calendar').fullCalendar('updateEvent', lp.dealEvent);
+            for (var i in lp.dealEvent) if (blacAccess.eventColumn.indexOf(i)>-1) lp.origEvent[i] = lp.dealEvent[i];
+            lp.origEvent.start = $.fullCalendar.moment(lp.dealEvent.start);
+            lp.origEvent.end = $.fullCalendar.moment(lp.dealEvent.end);
+            console.log('save over ..... to update Event. ');
+            $('#calendar').fullCalendar('updateEvent', lp.origEvent);
           }
           $('#calendar').fullCalendar('unselect');
           lp.dealEvent._exState = 'clean';
-          if (lp.origEvent) lp.origEvent._exState = 'clean';  // 原来的节点也要摆平。
         }
-        else { alert('保存失败。请通知管理员'); console.log(data); }
+        else { alert('保存失败。请通知管理员' + data.rtnInfo); console.log(data); }
       },
       function (err) {
-        alert('保存失败。请通知管理员'); console.log(err) ;
+        alert('保存失败。请通知管理员' + err); console.log(err) ;
       });
 
   };
 
-  lp.delEvent = function (aNode) {
-    if (window.confirm("确认删除记录么？"))
-      blacAccess.delEvent(lp.dealEvent.uuid).then(
-        function(data){
-          if (data.rtnCode == 1) {
-            console.log('delete ok. ');
-            $('#eventModal').modal('toggle');
-            $("#calendar").fullCalendar("removeEvents",lp.dealEvent.id);
-            $('#calendar').fullCalendar('unselect');
-            lp.dealEvent = {};
-          }
-          else { alert('删除失败。请通知管理员'); console.log(data); }
-        },
-        function(err){
-          alert('删除失败。请通知管理员'); console.log(err) ;
+  lp.delEvent = function () {
+      if (lp.dealEvent._exState == "new")
+        $('#eventModal').modal('toggle');
+      else
+        if (window.confirm("确认删除记录么？")) {
+          blacAccess.delEvent(lp.dealEvent.uuid).then(
+            function(data){
+              if (data.rtnCode == 1) {
+                console.log('delete ok. ');
+                $('#eventModal').modal('toggle');
+                $("#calendar").fullCalendar("removeEvents",lp.dealEvent.id);
+                $('#calendar').fullCalendar('unselect');
+                lp.dealEvent = {};
+              }
+              else { alert('删除失败。' + data.rtnInfo); console.log(data); }
+            },
+            function(err){
+              alert('删除失败。请通知管理员' + err); console.log(err) ;
+            }
+          );
         }
-      );
   };
 
   lp.closeEvent = function(){ $('#eventModal').modal('toggle'); lp.dealEvent = {}; };
 
-  lp.initData();
+
+  blacAccess.getUserParm().then(
+    function(data){
+      if (data.rtnCode == 1) {
+        console.log('got info. ');
+        for (var i in data.exObj){
+          lp.userParm[data.exObj[i]['UUID']] = JSON.parse( data.exObj[i]['EXPARM'] );
+          // [{UUID:xxx, EXPARM: {bgColor:"xxx"} }]   -> { UUID : {bgColor:xxx} }   exObj['uuid']['bgColor']
+        }
+        console.log(lp.userParm);
+        window.getYou = lp.userParm;
+        lp.initData();
+      }
+      else { alert('操作失败。请通知管理员'); console.log(data); }
+    },
+    function(err){
+      alert('操作失败。请通知管理员'); console.log(err) ;
+    }
+  );
+
 });
 

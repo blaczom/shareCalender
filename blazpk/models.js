@@ -24,6 +24,7 @@ objUser.prototype.new = function(){  return( new objUser() ); };
 objUser.prototype.save = gdbAccess.acUser.save;
 objUser.prototype.delete = gdbAccess.acUser.delete;
 objUser.prototype.getByUUID = gdbAccess.acUser.getByUUID;
+objUser.prototype.getUserParm = gdbAccess.acUser.getUserParm;
 
 var objEvent = function() {
   this.uuid = '';
