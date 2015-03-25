@@ -166,8 +166,24 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
               $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
             },
             eventDrop: function(event, delta, revertFunc) {
-              alert(event.title + " was dropped on " + event.start.format());
-              if (!confirm("Are you sure about this change?")) {
+              if (confirm("确定拖到：" + event.start.format() + "?" )) {
+                var l_event = {};
+                for (var i in event) if (blacAccess.eventColumn.indexOf(i)>-1) l_event[i] = event[i];
+                l_event.start = blacUtil.strDateTimeM(event.start._d);
+                l_event.end = blacUtil.strDateTimeM(event.end._d);
+                l_event._exState = 'dirty';
+                blacAccess.setEvent( l_event  ).then(
+                  function (data) {
+                    if (data.rtnCode == 1) {
+                      console.log('move saved ok. ');
+                    }
+                    else { alert('保存失败。请通知管理员' + data.rtnInfo); revertFunc();; }
+                  },
+                  function (err) {
+                    alert('保存失败。请通知管理员' + err); revertFunc(); ;
+                  });
+              }
+              else{
                 revertFunc();
               }
             }
