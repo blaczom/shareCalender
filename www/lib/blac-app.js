@@ -96,6 +96,7 @@ app.controller("ctrlLogin",function($rootScope,$scope,$location,blacStore,blacAc
 
 app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
 
+  function wrapEvent(aStr) { return $.fullCalendar.moment(aStr); }
   var lp = $scope;
   lp.wrapConfirm = blacUtil.wrapConfirm;
   /// 前台所有的属性，以小写为主。 后台数据库和从数据库返还的名字，大写。
@@ -111,23 +112,23 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
           // data 是一个event的数据哈  $("#calendar").fullCalendar("removeEvents",event.id);
           var showEvent = [];           // 检索所有的event对象用来显示。
           for (var i in data.exObj){
-            var l_borderColor = (data.exObj[i].FINISHED)? "#ff0000": "gray";
+            var l_borderColor = (data.exObj[i].FINISHED)? "#ff0000": "black";
             showEvent.push({
               uuid: data.exObj[i].UUID ,
               id: data.exObj[i].UUID,
               allDay : blacUtil.verifyBool(data.exObj[i].ALLDAY),
-              end: data.exObj[i].END,
+              start: wrapEvent(data.exObj[i].START),
+              end: wrapEvent(data.exObj[i].END),
               finished: blacUtil.verifyBool(data.exObj[i].FINISHED),
               owner: data.exObj[i].OWNER,
               backgroundColor : lp.userParm[data.exObj[i].OWNER]['bgColor'],
               public: blacUtil.verifyBool(data.exObj[i].PUBLIC),
-              start: data.exObj[i].START,
               title: data.exObj[i].TITLE,
               description: data.exObj[i].DESCRIPTION,
               borderColor: l_borderColor
             })
           };
-          // console.log('get event ok. ', showEvent);
+          console.log('get event ok. ', showEvent);
           $('#calendar').fullCalendar({
             header: {
               left: 'prev,next today',
@@ -135,6 +136,7 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
               right: 'month,basicWeek,basicDay'
             },
             lang: 'zh-cn',
+            ignoreTimezone: true,
             defaultDate: blacUtil.strDateTime(null, true),
             editable: true,   // 是否允许拖动。
             eventLimit: true, // allow "more" link when too many events
@@ -146,8 +148,8 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
               lp.dealEvent = { uuid: blacUtil.createUUID() };  // 新建的一个事件的内容。
               lp.dealEvent.id = lp.dealEvent.uuid;
               lp.dealEvent.start = blacUtil.strDateTimeM(start._d);  // 转换成字符串显示。保存时转回去。
-              lp.dealEvent.end = blacUtil.strDateTimeM( new Date(end._d - 0 - 86400000 ));
-              //lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
+              //lp.dealEvent.end = blacUtil.strDateTimeM( new Date(end._d - 0 - 86400000 ));
+              lp.dealEvent.end = blacUtil.strDateTimeM(end._d);
               lp.dealEvent.owner = blacStore.localUser();
               lp.dealEvent.allDay = true;
               lp.dealEvent._exState = 'new';
@@ -162,11 +164,11 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
               console.log('eventClick');window.getYou = event;
               // event.backgroundColor = "lightblue";
               lp.origEvent = event; // 记录当前点击的event。 以后用来更新。
+              lp.dealEvent = {};
               for (var i in event) if (blacAccess.eventColumn.indexOf(i)>-1) lp.dealEvent[i] = event[i];
-              //lp.dealEvent.start = blacUtil.strDateTimeM(new Date(event.start._d - 0 - 86400000 ));  // 转换成字符串显示。保存时转回去。
               lp.dealEvent.start = blacUtil.strDateTimeM(event.start._d);  // 转换成字符串显示。保存时转回去。
-              lp.dealEvent.end = blacUtil.strDateTimeM( new Date(event.end._d - 86400000 ));
-              //lp.dealEvent.end = blacUtil.strDateTimeM(event.end._d);
+              if (event.hasOwnProperty('end'))
+                if (event.end) lp.dealEvent.end = blacUtil.strDateTimeM(event.end._d);
               lp.dealEvent._exState = 'dirty';
               $scope.$apply( $('#eventModal').modal( { backdrop: "static" } ) );
             },
@@ -203,28 +205,32 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
 
   lp.saveEvent = function(){
     var l_event = {};
-    console.log('saveEvent ', lp.dealEvent);
+    console.log('prepare saveEvent ', lp.dealEvent);
     lp.dealEvent.start = $('#datetimepicker1').val();
-    lp.dealEvent.end = blacUtil.strDateTimeM( new Date( new Date( $('#datetimepicker2').val() ) - 0 + 86400000 ));
-    //lp.dealEvent.end = $('#datetimepicker2').val();
+    lp.dealEvent.end = $('#datetimepicker2').val();
+    if (lp.dealEvent.end <= lp.dealEvent.start) {
+      alert('结束日期应该大于起始日期，全天计划应该截止到第二天。');
+      return;
+    }
+
     for (var i in lp.dealEvent) if (blacAccess.eventColumn.indexOf(i)>-1) l_event[i] = lp.dealEvent[i];
     // 有点击的event。click的时候，是object
-    /* if (lp.dealEvent.allDay) {  // select 时候，是字符串。 。
-     lp.dealEvent.start = lp.dealEvent.start.substring(0,10);
-     lp.dealEvent.end = lp.dealEvent.end.substring(0, 10);
-     }; */
     blacAccess.setEvent( l_event  ).then(
       function (data) {
         if (data.rtnCode == 1) {
           console.log('save ok. ');
           $('#eventModal').modal('toggle');
-          if (lp.dealEvent._exState == 'new')
+          if (lp.dealEvent._exState == 'new') {
+            lp.dealEvent.start = wrapEvent(lp.dealEvent.start);
+            lp.dealEvent.end = wrapEvent(lp.dealEvent.end);
             $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true);  // 直接render内容就可以。
-          else {  // clicked的event
+          }
+          else if (lp.dealEvent._exState == 'dirty') {  // clicked的event
             for (var i in lp.dealEvent) if (blacAccess.eventColumn.indexOf(i)>-1) lp.origEvent[i] = lp.dealEvent[i];
-            lp.origEvent.start = $.fullCalendar.moment(lp.dealEvent.start);
-            lp.origEvent.end = $.fullCalendar.moment(  lp.dealEvent.end );
-            console.log('save over ..... to update Event. ');
+            lp.origEvent.start =  new Date( new Date( lp.dealEvent.start ) - 0 - 28800000 );
+            lp.origEvent.end = new Date( new Date( lp.dealEvent.end ) - 0 - 28800000 );
+            // 不知道为啥，callerder就是自动给我加8timezone。
+            console.log('save over ..... to update Event. end is ', lp.origEvent.end);
             $('#calendar').fullCalendar('updateEvent', lp.origEvent);
           }
           $('#calendar').fullCalendar('unselect');
