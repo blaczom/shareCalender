@@ -74,7 +74,7 @@ app.controller("ctrlLogin",function($rootScope,$scope,$location,blacStore,blacAc
   var lp = $scope;
   lp.rtnInfo = "";
   lp.lUser = {rem:blacStore.localRem(), username:blacStore.localUser(), pw:blacStore.localWord()  };
-
+  //$scope.$apply( lp.lUser );  // 显示窗口：绑定在dealevent上。
   lp.userLogin = function () {
     blacAccess.userLoginQ(lp.lUser).then( function(data) {
       if (data.rtnCode > 0) {
@@ -220,18 +220,22 @@ app.controller("ctrlCalender", function($scope,blacUtil,blacStore,blacAccess) {
         if (data.rtnCode == 1) {
           console.log('save ok. ');
           $('#eventModal').modal('toggle');
+          lp.dealEvent.start = wrapEvent(lp.dealEvent.start);
+          lp.dealEvent.end = wrapEvent(lp.dealEvent.end);
+
           if (lp.dealEvent._exState == 'new') {
-            lp.dealEvent.start = wrapEvent(lp.dealEvent.start);
-            lp.dealEvent.end = wrapEvent(lp.dealEvent.end);
             $('#calendar').fullCalendar('renderEvent', lp.dealEvent, true);  // 直接render内容就可以。
           }
           else if (lp.dealEvent._exState == 'dirty') {  // clicked的event
             for (var i in lp.dealEvent) if (blacAccess.eventColumn.indexOf(i)>-1) lp.origEvent[i] = lp.dealEvent[i];
-            lp.origEvent.start =  new Date( new Date( lp.dealEvent.start ) - 0 - 28800000 );
-            lp.origEvent.end = new Date( new Date( lp.dealEvent.end ) - 0 - 28800000 );
+            //lp.origEvent.start =  new Date( new Date( lp.dealEvent.start ) - 0 - 28800000 );
+            //lp.origEvent.end = new Date( new Date( lp.dealEvent.end ) - 0 - 28800000 );
             // 不知道为啥，callerder就是自动给我加8timezone。
             console.log('save over ..... to update Event. end is ', lp.origEvent.end);
-            $('#calendar').fullCalendar('updateEvent', lp.origEvent);
+            //$('#calendar').fullCalendar('updateEvent', lp.origEvent);  // update总是给我加8timezone。服了。
+            $("#calendar").fullCalendar("removeEvents",lp.origEvent.id);
+            $("#calendar").fullCalendar("addEventSource",[lp.dealEvent]);
+
           }
           $('#calendar').fullCalendar('unselect');
           lp.dealEvent._exState = 'clean';
